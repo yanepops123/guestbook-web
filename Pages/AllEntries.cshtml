@@ -1,20 +1,35 @@
 @page
 @model AllEntriesModel
 @{
-   ViewData["Title"] = "Все записи";
+    ViewData["Title"] = "Все записи";
 }
- 
+
 <h1>Все записи гостевой книги</h1>
 <p>Всего записей: @Model.Entries.Count()</p>
 <hr/>
- 
-@foreach (var entry in Model.Entries)
+
+@foreach (var entry in Model.Entries
+    .OrderByDescending(e => e.PartitionKey))
 {
-   <div class="card mb-2">
-       <div class="card-body">
-           <h5>@entry.GuestName</h5>
-           <p>@entry.Message</p>
-           <small>Дата: @entry.PartitionKey</small>
-       </div>
-   </div>
+    <div class="card mb-2">
+        <div class="card-body">
+            <h5>@entry.GuestName</h5>
+            <p>@entry.Message</p>
+            <small class="text-muted">
+                Дата: @entry.PartitionKey
+            </small>
+            <br/>
+            <form method="post" asp-page-handler="Delete">
+                <input type="hidden" name="partitionKey"
+                       value="@entry.PartitionKey" />
+                <input type="hidden" name="rowKey"
+                       value="@entry.RowKey" />
+                <button type="submit"
+                    class="btn btn-danger btn-sm mt-2"
+                    onclick="return confirm('Удалить запись?')">
+                    Удалить
+                </button>
+            </form>
+        </div>
+    </div>
 }
